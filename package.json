@@ -1,0 +1,50 @@
+{
+  "name": "ziron-worker",
+  "version": "0.1.0",
+  "description": "Ziron worker",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "UNLICENSED",
+  "files": [
+    "dist/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZironServer/ziron-worker.git"
+  },
+  "author": {
+    "name": "Luca Scaringella",
+    "email": "lucacode1@gmail.com",
+    "url": "https://luca.scaringella.de"
+  },
+  "dependencies": {
+    "ziron-server": "^0.1.10",
+    "ziron-client": "^0.1.6",
+    "@types/node": "^13.7.6"
+  },
+  "devDependencies": {
+    "typescript": "^3.7.5",
+    "gulp": "4.0.2",
+    "gulp-optimize-js": "1.1.0",
+    "gulp-terser": "1.2.0",
+    "gulp-typescript": "^5.0.1",
+    "del": "^5.1.0",
+    "ts-node": "^8.0.3",
+    "mocha": "7.0.1",
+    "@types/mocha": "^7.0.2",
+    "@types/uniqid": "^5.3.0",
+    "@types/ip": "^1.1.0"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "prepublishOnly": "npm run build",
+    "test": "mocha --exit -r ts-node/register test/**/*.ts"
+  },
+  "keywords": [
+    "websocket",
+    "realtime",
+    "ziron",
+    "fast",
+    "lightway"
+  ]
+}
