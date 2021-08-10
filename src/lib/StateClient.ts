@@ -14,7 +14,7 @@ type LocalEventEmitter = EventEmitter<{
     'leadershipChange': [boolean],
     'brokersChange': [string[]],
     'sessionIdChange': [string],
-    'sessionPayloadChange': [Record<any,any>]
+    'sessionSharedChange': [any]
     'error': [Error]
 }>;
 
@@ -26,7 +26,7 @@ type BrokerUpdate = {
 type JoinResponse = {
     session: {
         id: string,
-        shared: object,
+        shared: any,
     },
     brokers: BrokerUpdate,
     leader: boolean
@@ -42,7 +42,7 @@ export default class StateClient {
 
     private readonly _stateSocket: Socket;
 
-    public readonly sessionPayload: Record<any,any> = {};
+    public readonly sessionShared: Record<any,any> = {};
     public readonly clusterSessionId: string = '/';
     public readonly leader: boolean = false;
     public get brokers() {
@@ -109,7 +109,7 @@ export default class StateClient {
                 const joinResponse: JoinResponse = await stateSocket.invoke("join",this._joinData);
                 this._handleBrokerUpdate(joinResponse.brokers);
                 this._updateClusterSessionId(joinResponse.session.id);
-                this._updateClusterSessionPayload(joinResponse.session.shared);
+                this._updateClusterSessionShared(joinResponse.session.shared);
             } catch (e) {
                 if(!stateSocket.isConnected()) return;
                 invokeJoinRetryTicker = setTimeout(invokeJoin, 2000);
@@ -147,11 +147,11 @@ export default class StateClient {
         if(temp !== this.clusterSessionId) this._emit("sessionIdChange",this.clusterSessionId);
     }
 
-    private _updateClusterSessionPayload(payload: Record<any,any>) {
-        const temp = this.sessionPayload;
-        (this as Writable<StateClient>).sessionPayload = payload;
-        if(!deepEqual(temp,this.sessionPayload))
-            this._emit("sessionPayloadChange",this.sessionPayload);
+    private _updateClusterSessionShared(shared: any) {
+        const temp = this.sessionShared;
+        (this as Writable<StateClient>).sessionShared = shared;
+        if(!deepEqual(temp,this.sessionShared))
+            this._emit("sessionSharedChange",this.sessionShared);
     }
 
     public disconnect(): void {
