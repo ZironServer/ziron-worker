@@ -19,4 +19,16 @@ export type WorkerServerOptions = {
      * @default 12
      */
     brokerClusterClientMaxPoolSize?: number;
+    /**
+     * Defines payload that will be sent to the state server when a connection will be created.
+     * @default {}
+     */
+    clusterJoinPayload?: Record<any, any>;
+    /**
+     * Defines an object that can be shared with all workers via the state server.
+     * Notice, only the shared object from the first worker in the cluster will be actively used and shared.
+     * It can be helpful to sync a secret between all workers.
+     * @default {}
+     */
+    clusterShared?: Record<any, any>;
 } & ServerOptions
