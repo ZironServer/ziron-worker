@@ -23,6 +23,8 @@ export default class WorkerServer extends Server<{'sharedChange': [any]}> {
 
     private readonly join: string | null;
     private readonly brokerClusterClientMaxPoolSize: number;
+    private readonly clusterJoinPayload: any;
+    private readonly clusterShared: any;
 
     public readonly joinToken: {secret: string, uri: string};
     public readonly stateClientConnection?: Promise<void>;
@@ -41,6 +43,8 @@ export default class WorkerServer extends Server<{'sharedChange': [any]}> {
 
         this.join = options.join || null;
         this.brokerClusterClientMaxPoolSize = options.brokerClusterClientMaxPoolSize || 12;
+        this.clusterJoinPayload = options.clusterJoinPayload || {};
+        this.clusterShared = options.clusterShared;
 
         this.joinToken = parseJoinToken(this.join || '');
 
@@ -82,9 +86,9 @@ export default class WorkerServer extends Server<{'sharedChange': [any]}> {
             path: this.options.path,
             joinTokenUri: this.joinToken.uri,
             joinTokenSecret: this.joinToken.secret,
-            joinPayload: this.options.clusterJoinPayload || {},
+            joinPayload: this.clusterJoinPayload,
             sharedData: {
-                payload: this.options.clusterShared,
+                payload: this.clusterShared,
                 auth: {
                     algorithm: authOptions.algorithm,
                     publicKey: authOptions.publicKey,
