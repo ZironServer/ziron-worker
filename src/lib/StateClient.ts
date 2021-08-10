@@ -7,14 +7,14 @@ Copyright(c) Luca Scaringella
 import {Socket} from "ziron-client";
 import EventEmitter from "emitix";
 import { address } from "ip";
-import {arrayContentEquals, deepEqual, Writable} from "./Utils";
+import {arrayContentEquals, Writable} from "./Utils";
 import {CLUSTER_VERSION} from "./ClusterVersion";
 
 type LocalEventEmitter = EventEmitter<{
     'leadershipChange': [boolean],
     'brokersChange': [string[]],
     'sessionIdChange': [string],
-    'sessionSharedChange': [any]
+    'sessionSharedUpdate': [any,any]
     'error': [Error]
 }>;
 
@@ -150,8 +150,7 @@ export default class StateClient {
     private _updateClusterSessionShared(shared: any) {
         const temp = this.sessionShared;
         (this as Writable<StateClient>).sessionShared = shared;
-        if(!deepEqual(temp,this.sessionShared))
-            this._emit("sessionSharedChange",this.sessionShared);
+        this._emit("sessionSharedUpdate",shared,temp);
     }
 
     public disconnect(): void {

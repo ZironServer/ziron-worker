@@ -5,21 +5,21 @@ Copyright(c) Luca Scaringella
  */
 
 import {WorkerServerOptions} from "./WorkerServerOptions";
-import {parseJoinToken} from "./Utils";
+import {deepEqual, parseJoinToken} from "./Utils";
 import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
 import {Server} from "ziron-server";
 
 type ClusterShared = {
-    payload: Record<any,any>,
-    auth: {
+    payload?: Record<any,any>,
+    auth?: {
         algorithm: string,
         privateKey: string,
         publicKey: string
     }
 }
 
-export default class WorkerServer extends Server<{'sharedUpdate': [Record<any, any>]}> {
+export default class WorkerServer extends Server<{'sharedChange': [any]}> {
 
     private readonly join: string | null;
     private readonly brokerClusterClientMaxPoolSize: number;
@@ -45,17 +45,23 @@ export default class WorkerServer extends Server<{'sharedUpdate': [Record<any, a
         this.joinToken = parseJoinToken(this.join || '');
 
         this.stateClient = this._setUpStateClient();
-        this.stateClient?.on("sessionSharedChange", (shared: ClusterShared) => {
-            this.emitter.emit("sharedUpdate", shared.payload);
-            const auth = shared.auth;
-            try {
-                this.auth.updateOptions({
-                    algorithm: auth.algorithm as any,
-                    publicKey: auth.publicKey,
-                    privateKey: auth.privateKey
-                })
+        this.stateClient?.on("sessionSharedUpdate", (shared: ClusterShared,
+                                                     oldShared: ClusterShared) =>
+        {
+            if(!deepEqual(shared.payload,oldShared.payload))
+                this.emitter.emit("sharedChange", shared.payload);
+
+            if(shared.auth && !deepEqual(shared.auth,oldShared.auth)){
+                const auth = shared.auth;
+                try {
+                    this.auth.updateOptions({
+                        algorithm: auth.algorithm as any,
+                        publicKey: auth.publicKey,
+                        privateKey: auth.privateKey
+                    })
+                }
+                catch (err) {this.emitter.emit("error",err);}
             }
-            catch (err) {this.emitter.emit("error",err);}
         })
         if(this.stateClient != null) this.stateClientConnection = this.stateClient.connect();
 
