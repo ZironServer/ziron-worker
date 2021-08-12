@@ -31,4 +31,16 @@ export type WorkerServerOptions = {
      * @default undefined
      */
     clusterShared?: any;
+    /**
+     * This property indicates if the server should share the auth
+     * options for verifying and sign tokens in a cluster.
+     * The options of the first server that has joined the cluster
+     * will be used for all other servers in the cluster. When the option is enabled,
+     * the server will load the shared auth options.
+     * That is useful if you are using generated auth keys that will change on every server start.
+     * That helps to make the token valid on every server in the cluster,
+     * even if the other servers had different auth options before joining the cluster.
+     * @default true
+     */
+    clusterShareAuth?: boolean;
 } & ServerOptions

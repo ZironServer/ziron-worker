@@ -25,6 +25,7 @@ export default class WorkerServer extends Server<{'sharedChange': [any]}> {
     private readonly brokerClusterClientMaxPoolSize: number;
     private readonly clusterJoinPayload: any;
     private readonly clusterShared: any;
+    private readonly clusterShareAuth: boolean;
 
     public readonly joinToken: {secret: string, uri: string};
     public readonly stateClientConnection?: Promise<void>;
@@ -45,6 +46,7 @@ export default class WorkerServer extends Server<{'sharedChange': [any]}> {
         this.brokerClusterClientMaxPoolSize = options.brokerClusterClientMaxPoolSize || 12;
         this.clusterJoinPayload = options.clusterJoinPayload || {};
         this.clusterShared = options.clusterShared;
+        this.clusterShareAuth = options.clusterShareAuth === undefined ? true : options.clusterShareAuth;
 
         this.joinToken = parseJoinToken(this.join || '');
 
@@ -55,7 +57,7 @@ export default class WorkerServer extends Server<{'sharedChange': [any]}> {
             if(!deepEqual(shared.payload,oldShared.payload))
                 this.emitter.emit("sharedChange", shared.payload);
 
-            if(shared.auth && !deepEqual(shared.auth,oldShared.auth)){
+            if(this.clusterShareAuth && shared.auth && !deepEqual(shared.auth,oldShared.auth)){
                 const auth = shared.auth;
                 try {
                     this.auth.updateOptions({
@@ -89,11 +91,11 @@ export default class WorkerServer extends Server<{'sharedChange': [any]}> {
             joinPayload: this.clusterJoinPayload,
             sharedData: {
                 payload: this.clusterShared,
-                auth: {
+                auth: this.clusterShareAuth ? {
                     algorithm: authOptions.algorithm,
                     publicKey: authOptions.publicKey,
                     privateKey: authOptions.privateKey
-                }
+                } : undefined
             } as ClusterShared
         });
     }
