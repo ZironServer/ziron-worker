@@ -8,6 +8,7 @@ import WorkerServer              from "./lib/WorkerServer";
 import {WorkerServerOptions}     from "./lib/WorkerServerOptions";
 import EventEmitter              from "emitix";
 import {TimeoutError, Transport} from "ziron-engine";
+import StateClient               from "./lib/StateClient";
 import {AuthEngine, Block, Exchange,
     ProcedureListener, ReceiverListener, Socket} from "ziron-server";
 
@@ -24,5 +25,6 @@ export {
     Exchange,
     Block,
     ProcedureListener,
-    ReceiverListener
+    ReceiverListener,
+    StateClient,
 }
