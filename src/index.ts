@@ -9,10 +9,12 @@ import {WorkerServerOptions}     from "./lib/WorkerServerOptions";
 import EventEmitter              from "emitix";
 import {TimeoutError, Transport} from "ziron-engine";
 import StateClient               from "./lib/StateClient";
-import {AuthEngine, Block, Exchange,
+import {
+    AuthEngine, Block, Exchange,
     ProcedureListener, ReceiverListener,
     ProcedureEnd, ProcedureReject,
-    Socket} from "ziron-server";
+    Socket, PortInUseError
+} from "ziron-server";
 
 EventEmitter.onceTimeoutErrorCreator = () => new TimeoutError('Once timeout reached.','OnceListener');
 const prepareMultiTransmit = Transport.prepareMultiTransmit;
@@ -31,4 +33,5 @@ export {
     ProcedureReject,
     ReceiverListener,
     StateClient,
+    PortInUseError,
 }
