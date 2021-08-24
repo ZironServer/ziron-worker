@@ -13,7 +13,11 @@ import {
     AuthEngine, Block, Exchange,
     ProcedureListener, ReceiverListener,
     ProcedureEnd, ProcedureReject,
-    Socket, PortInUseError
+    Socket, PortInUseError,
+    AuthTokenExpiredError,
+    AuthTokenInvalidError,
+    AuthTokenError,
+    AuthTokenNotBeforeError
 } from "ziron-server";
 
 EventEmitter.onceTimeoutErrorCreator = () => new TimeoutError('Once timeout reached.','OnceListener');
@@ -34,4 +38,8 @@ export {
     ReceiverListener,
     StateClient,
     PortInUseError,
+    AuthTokenExpiredError,
+    AuthTokenInvalidError,
+    AuthTokenError,
+    AuthTokenNotBeforeError
 }
