@@ -8,7 +8,7 @@ import {WorkerServerOptions} from "./WorkerServerOptions";
 import {deepEqual, parseJoinToken} from "./Utils";
 import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
-import {Server} from "ziron-server";
+import {Server, Socket} from "ziron-server";
 
 type ClusterShared = {
     payload?: Record<any,any>,
@@ -19,7 +19,7 @@ type ClusterShared = {
     }
 }
 
-export default class WorkerServer extends Server<{'sharedChange': [any]}> {
+export default class WorkerServer<ES extends Socket = Socket> extends Server<{'sharedChange': [any]},ES> {
 
     private readonly join: string | null;
     private readonly brokerClusterClientMaxPoolSize: number;
