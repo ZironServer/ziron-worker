@@ -117,9 +117,9 @@ export default class StateClient {
                 this._handleBrokerUpdate(joinResponse.brokers);
                 this._updateClusterSessionId(joinResponse.session.id);
                 this._updateClusterSessionShared(joinResponse.session.shared);
-                if(this.firstJoinResolve) this.firstJoinResolve();
-            } catch (e) {
-                if(this.firstJoinReject) this.firstJoinReject(e);
+                this.firstJoinResolve();
+            } catch (err) {
+                this.firstJoinReject(err);
                 if(!stateSocket.isConnected()) return;
                 invokeJoinRetryTicker = setTimeout(invokeJoin, 2000);
             }
