@@ -9,6 +9,7 @@ import {deepEqual, parseJoinToken} from "./Utils";
 import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
 import {Server, Socket} from "ziron-server";
+import {EMPTY_FUNCTION} from "./Constants";
 
 type ClusterShared = {
     payload?: Record<any,any>,
@@ -28,7 +29,6 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
     private readonly clusterShareAuth: boolean;
 
     public readonly joinToken: {secret: string, uri: string};
-    public readonly stateClientConnection?: Promise<void>;
     public readonly stateClient?: StateClient;
 
     get leader(): boolean {
@@ -69,9 +69,9 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
                 catch (err) {this.emitter.emit("error",err);}
             }
         })
-        if(this.stateClient != null) this.stateClientConnection = this.stateClient.connect();
 
         if(this.stateClient != null) {
+            this.stateClient.connect().catch(EMPTY_FUNCTION);
             this.internalBroker.externalBrokerClient = new BrokerClusterClient(this.stateClient,this.internalBroker,{
                 joinTokenSecret: this.joinToken.secret,
                 maxClientPoolSize: this.brokerClusterClientMaxPoolSize
