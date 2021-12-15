@@ -10,14 +10,17 @@ import EventEmitter              from "emitix";
 import {TimeoutError, Transport} from "ziron-engine";
 import StateClient               from "./lib/StateClient";
 import {
-    AuthEngine, Block, Exchange,
+    AuthEngine, Block, ChannelExchange,
     ProcedureListener, ReceiverListener,
     ProcedureEnd, ProcedureReject,
-    Socket, PortInUseError,
+    Socket, FailedToListenError,
     AuthTokenExpiredError,
     AuthTokenInvalidError,
     AuthTokenError,
-    AuthTokenNotBeforeError
+    AuthTokenNotBeforeError,
+    Http, UpgradeRequest,
+    TLSOptions, CompressionOptions,
+    Compressor
 } from "ziron-server";
 
 EventEmitter.onceTimeoutErrorCreator = () => new TimeoutError('Once timeout reached.','OnceListener');
@@ -27,19 +30,24 @@ export * from 'ziron-engine';
 export {
     WorkerServer as Server,
     WorkerServerOptions as ServerOptions,
+    TLSOptions,
+    CompressionOptions,
+    Compressor,
     prepareMultiTransmit,
     Socket,
     AuthEngine,
-    Exchange,
+    ChannelExchange,
     Block,
     ProcedureListener,
     ProcedureEnd,
     ProcedureReject,
     ReceiverListener,
     StateClient,
-    PortInUseError,
+    FailedToListenError,
     AuthTokenExpiredError,
     AuthTokenInvalidError,
     AuthTokenError,
-    AuthTokenNotBeforeError
+    AuthTokenNotBeforeError,
+    Http,
+    UpgradeRequest
 }
