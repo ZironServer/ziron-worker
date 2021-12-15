@@ -75,7 +75,7 @@ export default class StateClient {
         };
 
         const stateSocket = new Socket(options.joinTokenUri, {
-            ackTimeout: 3000,
+            responseTimeout: 3000,
             connectTimeout: 3000,
             autoReconnect: {
                 active: true,
