@@ -139,7 +139,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
     }
 
     private _getMappedSubscriptions(): Record<string,Record<string,boolean>> {
-        const currentSubscriptions = this._internalBroker.getSubscriptionList();
+        const currentSubscriptions = this._internalBroker.getSubscriptions();
         let map = {}, i: number, channel: string, targetUri: string | null;
         for(i = 0; i < currentSubscriptions.length; i++) {
             channel = currentSubscriptions[i];
