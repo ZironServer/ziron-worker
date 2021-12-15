@@ -83,9 +83,9 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         if(this.join == null) return undefined;
         const authOptions = this.auth.options;
         return new StateClient({
-            id: this.options.id,
-            port: this.options.port,
-            path: this.options.path,
+            id: this.id,
+            port: this.port,
+            path: this.path,
             joinTokenUri: this.joinToken.uri,
             joinTokenSecret: this.joinToken.secret,
             joinPayload: this.clusterJoinPayload,
