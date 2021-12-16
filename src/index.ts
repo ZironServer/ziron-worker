@@ -22,7 +22,7 @@ import {
     HttpRequest,
     HttpResponse,
     TLSOptions, CompressionOptions,
-    Compressor, staticFiles
+    Compressor, StaticFilesRouter
 } from "ziron-server";
 
 EventEmitter.onceTimeoutErrorCreator = () => new TimeoutError('Once timeout reached.','OnceListener');
@@ -53,5 +53,5 @@ export {
     UpgradeRequest,
     HttpRequest,
     HttpResponse,
-    staticFiles
+    StaticFilesRouter
 }
