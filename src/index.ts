@@ -22,7 +22,7 @@ import {
     HttpRequest,
     HttpResponse,
     TLSOptions, CompressionOptions,
-    Compressor
+    Compressor, staticFiles
 } from "ziron-server";
 
 EventEmitter.onceTimeoutErrorCreator = () => new TimeoutError('Once timeout reached.','OnceListener');
@@ -52,5 +52,6 @@ export {
     AuthTokenNotBeforeError,
     UpgradeRequest,
     HttpRequest,
-    HttpResponse
+    HttpResponse,
+    staticFiles
 }
