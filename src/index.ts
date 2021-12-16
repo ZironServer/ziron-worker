@@ -18,7 +18,9 @@ import {
     AuthTokenInvalidError,
     AuthTokenError,
     AuthTokenNotBeforeError,
-    Http, UpgradeRequest,
+    UpgradeRequest,
+    HttpRequest,
+    HttpResponse,
     TLSOptions, CompressionOptions,
     Compressor
 } from "ziron-server";
@@ -48,6 +50,7 @@ export {
     AuthTokenInvalidError,
     AuthTokenError,
     AuthTokenNotBeforeError,
-    Http,
-    UpgradeRequest
+    UpgradeRequest,
+    HttpRequest,
+    HttpResponse
 }
