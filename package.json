@@ -18,8 +18,8 @@
     "email": "lucacode1@gmail.com"
   },
   "dependencies": {
-    "ziron-server": "3.3.0",
-    "ziron-client": "3.3.0",
+    "ziron-server": "3.4.0",
+    "ziron-client": "3.4.0",
     "ziron-rendezvous": "1.0.0",
     "@types/node": "^13.7.6"
   },
