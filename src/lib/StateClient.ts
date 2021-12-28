@@ -42,6 +42,10 @@ export default class StateClient {
 
     private readonly _stateSocket: Socket;
 
+    get connected(): boolean {
+        return this._stateSocket?.isConnected();
+    }
+
     public readonly sessionShared: Record<any,any> = {};
     public readonly clusterSessionId: string = '/';
     public readonly leader: boolean = false;
