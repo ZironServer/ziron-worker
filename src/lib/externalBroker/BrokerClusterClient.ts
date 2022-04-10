@@ -7,7 +7,7 @@ Copyright(c) Ing. Luca Gian Scaringella
 import {ExternalBrokerClient} from "ziron-server";
 import StateClient from "../StateClient";
 import {distinctArrayFilter} from "../Utils";
-import ClientPool from "./ClientPool";
+import BrokerClientPool from "./InternalClientPool";
 import {CLUSTER_VERSION} from "../ClusterVersion";
 import {NoMatchingBrokerClientError} from "ziron-errors";
 import EventEmitter from "emitix";
@@ -22,7 +22,7 @@ type LocalEventEmitter = EventEmitter<{
 export default class BrokerClusterClient implements ExternalBrokerClient {
 
     private _brokerUris: string[];
-    private _brokerClientMap: Record<string,ClientPool> = {};
+    private _brokerClientMap: Record<string,BrokerClientPool> = {};
 
     private readonly _stateClient: StateClient;
     private readonly _internalBroker: InternalBroker;
@@ -55,7 +55,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
      * Returns an object containing the connected broker
      * uris with the corresponding client pool.
      */
-    get brokerClients(): Record<string,ClientPool> {
+    get brokerClients(): Record<string,BrokerClientPool> {
         return {...this._brokerClientMap};
     }
 
@@ -81,14 +81,14 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
     // noinspection JSUnusedGlobalSymbols
     getCurrentSubscriptions(includePending: boolean = false): string[] {
         const subscriptions: string[] = [];
-        const clientPools: ClientPool[] = Object.values(this._brokerClientMap);
+        const clientPools: BrokerClientPool[] = Object.values(this._brokerClientMap);
         for(let i = 0; i < clientPools.length; i++)
             subscriptions.push(...clientPools[i].getSubscriptions(includePending))
         return subscriptions.filter(distinctArrayFilter);
     }
 
     private updateToBrokerUris() {
-        let newBrokerClientMap = {}, i: number, uri: string, tempClientPool: ClientPool,
+        let newBrokerClientMap = {}, i: number, uri: string, tempClientPool: BrokerClientPool,
             length: number, channelLookup: Record<string,boolean>, tempSubscriptions: string[]
 
         length = this._brokerUris.length;
@@ -119,7 +119,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
                 })
                 continue;
             }
-            tempClientPool = new ClientPool({
+            tempClientPool = new BrokerClientPool({
                 clusterVersion: CLUSTER_VERSION,
                 joinTokenSecret: this._joinTokenSecret,
                 uri,
@@ -164,7 +164,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
         return this._mapper.findSite(channel);
     }
 
-    private _selectClientPoolFromChannel(channel: string): ClientPool | null | undefined {
+    private _selectClientPoolFromChannel(channel: string): BrokerClientPool | null | undefined {
         const brokerUri = this._selectBrokerFromChannel(channel);
         return brokerUri != null ? this._brokerClientMap[brokerUri] : null;
     }

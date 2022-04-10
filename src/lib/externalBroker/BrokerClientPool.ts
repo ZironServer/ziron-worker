@@ -4,19 +4,26 @@ GitHub: LucaCode
 Copyright(c) Ing. Luca Gian Scaringella
  */
 
-import {SocketOptions,Socket} from "ziron-client";
+import {
+    SocketOptions,
+    Socket,
+    BatchOption,
+    SendTimeoutOption,
+    CancelableOption,
+    ComplexTypesOption, CancelablePromise, ResponseTimeoutOption, ReturnDataTypeOption, DataType
+} from "ziron-client";
 import {hashToIndex} from "../Utils";
 import {EMPTY_FUNCTION} from "../Constants";
 import {NamedError} from "ziron-errors";
 
-export interface ClientPoolOptions {
+export interface BrokerClientPoolOptions {
     poolSize: number,
     uri: string,
     joinTokenSecret: string,
     clusterVersion: number,
 }
 
-export default class ClientPool {
+export default class BrokerClientPool {
 
     /**
      * @internal
@@ -27,12 +34,12 @@ export default class ClientPool {
      */
     public onPublish: (channel: string, data: any, complexDataType: boolean) => void = EMPTY_FUNCTION;
 
-    private readonly _options: ClientPoolOptions;
+    private readonly _options: BrokerClientPoolOptions;
     private readonly clientOptions: SocketOptions;
 
     private clients: Socket[] = [];
 
-    constructor(options: ClientPoolOptions) {
+    constructor(options: BrokerClientPoolOptions) {
         this._options = options;
         this.clientOptions = this._buildSocketOptions();
         if(this._options.poolSize < 1) throw new Error("Pool size must be greater than 0");
