@@ -18,7 +18,13 @@ export interface ClientPoolOptions {
 
 export default class ClientPool {
 
+    /**
+     * @internal
+     */
     public onError: (err: Error) => void = EMPTY_FUNCTION;
+    /**
+     * @internal
+     */
     public onPublish: (channel: string, data: any, complexDataType: boolean) => void = EMPTY_FUNCTION;
 
     private readonly _options: ClientPoolOptions;
@@ -77,16 +83,25 @@ export default class ClientPool {
         } as SocketOptions);
     }
 
+    /**
+     * @internal
+     */
     async subscribe(channel: string): Promise<void> {
         try {await this._selectClient(channel).subscribe(channel);}
         catch (err) {this.onError(new NamedError("PoolClientSubscribeFail", err));}
     }
 
+    /**
+     * @internal
+     */
     async unsubscribe(channel: string): Promise<void> {
         try {return this._selectClient(channel).unsubscribe(channel);}
         catch (err) {this.onError(new NamedError("PoolClientUnsubscribeFail", err));}
     }
 
+    /**
+     * @internal
+     */
     async publish(channel: string, data: any, processComplexTypes: boolean) {
         try {await this._selectClient(channel).publish(channel,data,{processComplexTypes});}
         catch (err) {this.onError(new NamedError("PoolClientPublishFail", err));}
@@ -104,6 +119,9 @@ export default class ClientPool {
         return this._selectClient(channel).hasSubscribed(channel,includePending);
     }
 
+    /**
+     * @internal
+     */
     cleanUp() {
         const length = this.clients.length;
         let client: Socket;
