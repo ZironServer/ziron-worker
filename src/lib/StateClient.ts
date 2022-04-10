@@ -4,7 +4,14 @@ GitHub: LucaCode
 Copyright(c) Ing. Luca Gian Scaringella
  */
 
-import {Socket} from "ziron-client";
+import {
+    BatchOption,
+    CancelableOption, CancelablePromise,
+    ComplexTypesOption, DataType,
+    ResponseTimeoutOption, ReturnDataTypeOption,
+    SendTimeoutOption,
+    Socket
+} from "ziron-client";
 import EventEmitter from "emitix";
 import { address } from "ip";
 import {arrayContentEquals, Writable} from "./Utils";
@@ -45,6 +52,34 @@ export default class StateClient {
     get connected(): boolean {
         return this._stateSocket?.isConnected();
     }
+
+    /**
+     * @description
+     * Do custom invokes with the state socket.
+     * Be careful only to use custom procedures.
+     * @param procedure
+     * @param data
+     * @param options
+     */
+    invoke<RDT extends true | false | undefined, C extends boolean | undefined = undefined>
+    (procedure: Exclude<string,'#join' | '#leave'>, data?: any, options: BatchOption & SendTimeoutOption & CancelableOption<C> &
+        ResponseTimeoutOption & ComplexTypesOption & ReturnDataTypeOption<RDT> = {})
+        : C extends true ? CancelablePromise<RDT extends true ? [any,DataType] : any> : Promise<RDT extends true ? [any,DataType] : any>
+    { return this._stateSocket.invoke(procedure,data,options); }
+
+    /**
+     * @description
+     * Do custom transmits with the state socket.
+     * Be careful only to use custom receivers.
+     * @param receiver
+     * @param data
+     * @param options
+     */
+    transmit<C extends boolean | undefined = undefined>
+    (receiver: string, data?: any, options: BatchOption & SendTimeoutOption &
+        CancelableOption<C> & ComplexTypesOption = {})
+        : C extends true ? CancelablePromise<void> : Promise<void>
+    { return this._stateSocket.transmit(receiver,data,options); }
 
     public readonly sessionShared: Record<any,any> = {};
     public readonly clusterSessionId: string = '/';
