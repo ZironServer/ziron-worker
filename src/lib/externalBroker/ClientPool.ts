@@ -107,6 +107,34 @@ export default class ClientPool {
         catch (err) {this.onError(new NamedError("PoolClientPublishFail", err));}
     }
 
+    /**
+     * @description
+     * Do custom invokes on a selected socket.
+     * Be careful only to use custom procedures.
+     * @param procedure
+     * @param data
+     * @param options
+     */
+    invoke<RDT extends true | false | undefined, C extends boolean | undefined = undefined>
+    (procedure: string, data?: any, options: BatchOption & SendTimeoutOption & CancelableOption<C> &
+        ResponseTimeoutOption & ComplexTypesOption & ReturnDataTypeOption<RDT> = {})
+        : C extends true ? CancelablePromise<RDT extends true ? [any,DataType] : any> : Promise<RDT extends true ? [any,DataType] : any>
+    { return this._selectClient(procedure).invoke(procedure,data,options); }
+
+    /**
+     * @description
+     * Do custom transmits on a selected socket.
+     * Be careful only to use custom receivers.
+     * @param receiver
+     * @param data
+     * @param options
+     */
+    transmit<C extends boolean | undefined = undefined>
+    (receiver: string, data?: any, options: BatchOption & SendTimeoutOption &
+        CancelableOption<C> & ComplexTypesOption = {})
+        : C extends true ? CancelablePromise<void> : Promise<void>
+    { return this._selectClient(receiver).transmit(receiver,data,options); }
+
     getSubscriptions(includePending: boolean = false): string[] {
         const subscriptions: string[] = [];
         for(let i = 0; i < this.clients.length; i++)
