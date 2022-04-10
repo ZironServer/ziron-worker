@@ -152,7 +152,7 @@ export default class StateClient {
         let invokeJoinRetryTicker;
         const invokeJoin = async () => {
             try {
-                const joinResponse: JoinResponse = await stateSocket.invoke("join",this._joinData);
+                const joinResponse: JoinResponse = await stateSocket.invoke("#join",this._joinData);
                 this._handleBrokerUpdate(joinResponse.brokers);
                 this._updateClusterSessionId(joinResponse.session.id);
                 this._updateClusterSessionShared(joinResponse.session.shared);
