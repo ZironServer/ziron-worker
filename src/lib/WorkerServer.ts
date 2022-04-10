@@ -10,6 +10,7 @@ import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
 import {Server, Socket} from "ziron-server";
 import {EMPTY_FUNCTION} from "./Constants";
+import ClientPool from "./externalBroker/InternalClientPool";
 
 type ClusterShared = {
     payload?: Record<any,any>,
@@ -30,6 +31,7 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
 
     public readonly joinToken: {secret: string, uri: string};
     public readonly stateClient?: StateClient;
+    private readonly brokerClusterClient?: BrokerClusterClient;
 
     get leader(): boolean {
         return this.stateClient?.leader ?? false;
@@ -37,6 +39,15 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
 
     get shared(): any {
         return (this.stateClient?.sessionShared as ClusterShared | undefined)?.payload;
+    }
+
+    /**
+     * @description
+     * Provides limited access to the client pool for each broker.
+     * Use it only when you know what you are doing.
+     */
+    get brokerClients(): Record<string,ClientPool> {
+        return this.brokerClusterClient?.brokerClients ?? {};
     }
 
     constructor(options: WorkerServerOptions = {}) {
@@ -72,10 +83,11 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
 
         if(this.stateClient != null) {
             this.stateClient.connect().catch(EMPTY_FUNCTION);
-            this.internalBroker.externalBrokerClient = new BrokerClusterClient(this.stateClient,this.internalBroker,{
+            this.brokerClusterClient = new BrokerClusterClient(this.stateClient,this.internalBroker,{
                 joinTokenSecret: this.joinToken.secret,
                 maxClientPoolSize: this.brokerClusterClientMaxPoolSize
             });
+            this.internalBroker.externalBrokerClient = this.brokerClusterClient;
         }
     }
 

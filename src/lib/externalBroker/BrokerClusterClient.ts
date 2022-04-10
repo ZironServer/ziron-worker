@@ -50,6 +50,15 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
         this._setBrokerUris(stateClient.brokers);
     }
 
+    /**
+     * @description
+     * Returns an object containing the connected broker
+     * uris with the corresponding client pool.
+     */
+    get brokerClients(): Record<string,ClientPool> {
+        return {...this._brokerClientMap};
+    }
+
     private _setBrokerUris(uris: string[]): void {
         this._brokerUris = uris.filter(distinctArrayFilter);
         this._mapper.setSites(this._brokerUris);
