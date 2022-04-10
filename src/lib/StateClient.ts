@@ -170,6 +170,9 @@ export default class StateClient {
         this._stateSocket = stateSocket;
     }
 
+    /**
+     * @internal
+     */
     public async connect() {
         await this._stateSocket.connect();
     }
@@ -201,8 +204,10 @@ export default class StateClient {
         this._emit("sessionSharedUpdate",shared,temp);
     }
 
+    /**
+     * @internal
+     */
     public disconnect(): void {
         this._stateSocket.disconnect();
     }
-
 }
