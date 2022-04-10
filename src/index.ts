@@ -24,6 +24,7 @@ import {
     TLSOptions, CompressionOptions,
     Compressor, StaticFilesRouter
 } from "ziron-server";
+import BrokerClientPool from "./lib/externalBroker/InternalClientPool";
 
 EventEmitter.onceTimeoutErrorCreator = () => new TimeoutError('Once timeout reached.','OnceListener');
 const prepareMultiTransmit = Transport.prepareMultiTransmit;
@@ -53,5 +54,6 @@ export {
     UpgradeRequest,
     HttpRequest,
     HttpResponse,
-    StaticFilesRouter
+    StaticFilesRouter,
+    BrokerClientPool
 }
