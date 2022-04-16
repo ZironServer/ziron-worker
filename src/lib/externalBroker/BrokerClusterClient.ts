@@ -7,7 +7,7 @@ Copyright(c) Ing. Luca Gian Scaringella
 import {ExternalBrokerClient} from "ziron-server";
 import StateClient from "../StateClient";
 import {distinctArrayFilter} from "../Utils";
-import BrokerClientPool from "./InternalClientPool";
+import BrokerClientPool from "./BrokerClientPool";
 import {CLUSTER_VERSION} from "../ClusterVersion";
 import {NoMatchingBrokerClientError} from "ziron-errors";
 import EventEmitter from "emitix";

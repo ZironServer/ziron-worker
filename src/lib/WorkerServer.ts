@@ -10,7 +10,7 @@ import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
 import {Server, Socket} from "ziron-server";
 import {EMPTY_FUNCTION} from "./Constants";
-import ClientPool from "./externalBroker/InternalClientPool";
+import BrokerClientPool from "./externalBroker/BrokerClientPool";
 
 type ClusterShared = {
     payload?: Record<any,any>,
@@ -46,7 +46,7 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
      * Provides limited access to the client pool for each broker.
      * Use it only when you know what you are doing.
      */
-    get brokerClients(): Record<string,ClientPool> {
+    get brokerClients(): Record<string,BrokerClientPool> {
         return this.brokerClusterClient?.brokerClients ?? {};
     }
 
