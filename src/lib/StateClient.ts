@@ -21,7 +21,7 @@ type LocalEventEmitter = EventEmitter<{
     'leadershipChange': [boolean],
     'brokersChange': [string[]],
     'sessionIdChange': [string],
-    'sessionSharedUpdate': [any,any]
+    'sessionSharedUpdate': [any,any],
     'error': [Error]
 }>;
 
@@ -161,6 +161,7 @@ export default class StateClient {
                 this.firstJoinReject(err);
                 if(!stateSocket.isConnected()) return;
                 invokeJoinRetryTicker = setTimeout(invokeJoin, 2000);
+                this._emit("error",err);
             }
         };
         stateSocket.on("connect", () => {
