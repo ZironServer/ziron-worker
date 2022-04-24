@@ -41,6 +41,11 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         return (this.stateClient?.sessionShared as ClusterShared | undefined)?.payload;
     }
 
+    get initJoin(): Promise<void> {
+        return this.stateClient ? this.stateClient.initJoin :
+            Promise.reject(new Error("Join token was not provided."));
+    }
+
     /**
      * @description
      * Provides limited access to the client pool for each broker.
@@ -85,7 +90,7 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         });
 
         if(this.stateClient != null) {
-            this.stateClient.connect().catch(EMPTY_FUNCTION);
+            this.stateClient.join().catch(EMPTY_FUNCTION);
             this.brokerClusterClient = new BrokerClusterClient(this.stateClient,this.internalBroker,{
                 joinTokenSecret: this.joinToken.secret,
                 maxClientPoolSize: this.brokerClusterClientMaxPoolSize

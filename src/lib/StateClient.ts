@@ -88,11 +88,11 @@ export default class StateClient {
         return this._currentBrokerUpdate.uris;
     }
 
-    private firstJoinResolve: () => void;
-    private firstJoinReject: (err: Error) => void;
-    public readonly firstJoinPromise: Promise<void> = new Promise((res,rej) => {
-        this.firstJoinResolve = res;
-        this.firstJoinReject = rej;
+    private initJoinResolve: () => void;
+    private initJoinReject: (err: Error) => void;
+    public readonly initJoin: Promise<void> = new Promise((res, rej) => {
+        this.initJoinResolve = res;
+        this.initJoinReject = rej;
     })
 
     private _currentBrokerUpdate: BrokerUpdate = {time: -1, uris: []};
@@ -156,9 +156,9 @@ export default class StateClient {
                 this._handleBrokerUpdate(joinResponse.brokers);
                 this._updateClusterSessionId(joinResponse.session.id);
                 this._updateClusterSessionShared(joinResponse.session.shared);
-                this.firstJoinResolve();
+                this.initJoinResolve();
             } catch (err) {
-                this.firstJoinReject(err);
+                this.initJoinReject(err);
                 if(!stateSocket.isConnected()) return;
                 invokeJoinRetryTicker = setTimeout(invokeJoin, 2000);
                 this._emit("error",err);
@@ -174,8 +174,14 @@ export default class StateClient {
     /**
      * @internal
      */
-    public async connect() {
-        await this._stateSocket.connect();
+    public async join() {
+        this._initConnect();
+        return this.initJoin;
+    }
+
+    private _initConnect() {
+        this._stateSocket.connect()
+            .catch(err => this.initJoinReject(err));
     }
 
     private _handleBrokerUpdate(brokersUpdate: BrokerUpdate) {
