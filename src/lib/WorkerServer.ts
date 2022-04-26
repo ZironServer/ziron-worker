@@ -92,6 +92,10 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         }
     }
 
+    isConnectedToState(): boolean {
+        return !!this.stateClient?.connected;
+    }
+
     public async join() {
         if(this._rawJoinToken == null) throw new Error("Join token was not provided.");
         return this.stateClient?.join();
