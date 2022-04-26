@@ -98,6 +98,12 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         return this.stateClient?.join();
     }
 
+    public async listenAndJoin() {
+        const joinPromise = this.join();
+        await this.listen();
+        await joinPromise;
+    }
+
     private _setUpStateClient() {
         if(this._rawJoinToken == null) return undefined;
         const authOptions = this.auth.options;
