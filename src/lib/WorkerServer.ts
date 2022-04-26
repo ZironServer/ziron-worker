@@ -23,7 +23,7 @@ type ClusterShared = {
 
 export default class WorkerServer<ES extends Socket = Socket> extends Server<{'sharedChange': [any],'leadershipChange': [boolean]},ES> {
 
-    private readonly join: string | null;
+    private readonly _rawJoinToken: string | null;
     private readonly brokerClusterClientMaxPoolSize: number;
     private readonly clusterJoinPayload: any;
     private readonly clusterShared: any;
@@ -41,11 +41,6 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         return (this.stateClient?.sessionShared as ClusterShared | undefined)?.payload;
     }
 
-    get initJoin(): Promise<void> {
-        return this.stateClient ? this.stateClient.initJoin :
-            Promise.reject(new Error("Join token was not provided."));
-    }
-
     /**
      * @description
      * Provides limited access to the client pool for each broker.
@@ -58,13 +53,13 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
     constructor(options: WorkerServerOptions = {}) {
         super(options);
 
-        this.join = options.join || null;
+        this._rawJoinToken = options.join || null;
         this.brokerClusterClientMaxPoolSize = options.brokerClusterClientMaxPoolSize || 12;
         this.clusterJoinPayload = options.clusterJoinPayload || {};
         this.clusterShared = options.clusterShared;
         this.clusterShareAuth = options.clusterShareAuth === undefined ? true : options.clusterShareAuth;
 
-        this.joinToken = parseJoinToken(this.join || '');
+        this.joinToken = parseJoinToken(this._rawJoinToken || '');
 
         this.stateClient = this._setUpStateClient();
         this.stateClient?.on("sessionSharedUpdate", (shared: ClusterShared,
@@ -88,7 +83,6 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         this.stateClient?.on("leadershipChange",leader => {
             this.emitter.emit("leadershipChange",leader);
         });
-
         if(this.stateClient != null) {
             this.stateClient.join().catch(EMPTY_FUNCTION);
             this.brokerClusterClient = new BrokerClusterClient(this.stateClient,this.internalBroker,{
@@ -99,8 +93,13 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         }
     }
 
+    public async join() {
+        if(this._rawJoinToken == null) throw new Error("Join token was not provided.");
+        return this.stateClient?.join();
+    }
+
     private _setUpStateClient() {
-        if(this.join == null) return undefined;
+        if(this._rawJoinToken == null) return undefined;
         const authOptions = this.auth.options;
         return new StateClient({
             id: this.id,
@@ -128,6 +127,6 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
      */
     terminate() {
         super.terminate();
-        this.stateClient?.disconnect();
+        this.stateClient?.terminate();
     }
 }

@@ -16,6 +16,7 @@ import EventEmitter from "emitix";
 import { address } from "ip";
 import {arrayContentEquals, Writable} from "./Utils";
 import {CLUSTER_VERSION} from "./ClusterVersion";
+import Timeout = NodeJS.Timeout;
 
 type LocalEventEmitter = EventEmitter<{
     'leadershipChange': [boolean],
@@ -48,10 +49,19 @@ export default class StateClient {
     private readonly _emit: LocalEventEmitter['emit'] = this._localEmitter.emit.bind(this._localEmitter);
 
     private readonly _stateSocket: Socket;
+    private _invokeJoinRetryTicker: Timeout;
+    private _initJoinCalled: boolean = false;
 
     get connected(): boolean {
         return this._stateSocket?.isConnected();
     }
+
+    private initJoinResolve: () => void;
+    private initJoinReject: (err: Error) => void;
+    public readonly initJoin: Promise<void> = new Promise((res, rej) => {
+        this.initJoinResolve = res;
+        this.initJoinReject = rej;
+    })
 
     /**
      * @description
@@ -88,16 +98,9 @@ export default class StateClient {
         return this._currentBrokerUpdate.uris;
     }
 
-    private initJoinResolve: () => void;
-    private initJoinReject: (err: Error) => void;
-    public readonly initJoin: Promise<void> = new Promise((res, rej) => {
-        this.initJoinResolve = res;
-        this.initJoinReject = rej;
-    })
-
     private _currentBrokerUpdate: BrokerUpdate = {time: -1, uris: []};
 
-    private _joinData: {shared: object, payload: object};
+    private readonly _joinData: {shared: object, payload: object};
 
     constructor(options: {
         joinTokenUri: string,
@@ -149,39 +152,38 @@ export default class StateClient {
             this._updateLeadership(false);
         })
 
-        let invokeJoinRetryTicker;
-        const invokeJoin = async () => {
+        const tryJoin = async () => {
             try {
-                const joinResponse: JoinResponse = await stateSocket.invoke("#join",this._joinData);
-                this._handleBrokerUpdate(joinResponse.brokers);
-                this._updateClusterSessionId(joinResponse.session.id);
-                this._updateClusterSessionShared(joinResponse.session.shared);
+                await this._invokeJoin();
                 this.initJoinResolve();
-            } catch (err) {
+            }
+            catch (err) {
                 this.initJoinReject(err);
                 if(!stateSocket.isConnected()) return;
-                invokeJoinRetryTicker = setTimeout(invokeJoin, 2000);
+                this._invokeJoinRetryTicker = setTimeout(tryJoin, 2000);
                 this._emit("error",err);
             }
         };
         stateSocket.on("connect", () => {
-            clearTimeout(invokeJoinRetryTicker);
-            invokeJoin();
+            clearTimeout(this._invokeJoinRetryTicker);
+            tryJoin();
         });
         this._stateSocket = stateSocket;
     }
 
-    /**
-     * @internal
-     */
-    public async join() {
-        this._initConnect();
-        return this.initJoin;
+    private async _invokeJoin() {
+        const joinResponse: JoinResponse = await this._stateSocket.invoke("#join",this._joinData);
+        this._handleBrokerUpdate(joinResponse.brokers);
+        this._updateClusterSessionId(joinResponse.session.id);
+        this._updateClusterSessionShared(joinResponse.session.shared);
     }
 
-    private _initConnect() {
-        this._stateSocket.connect()
-            .catch(err => this.initJoinReject(err));
+    public async join() {
+        if(this._initJoinCalled) throw new Error("Join should only be invoked once. " +
+                "The server will automatically retry to rejoin the cluster in case of disconnection.");
+        this._initJoinCalled = true;
+        this._stateSocket.connect().catch(this.initJoinReject)
+        return this.initJoin;
     }
 
     private _handleBrokerUpdate(brokersUpdate: BrokerUpdate) {
@@ -214,7 +216,8 @@ export default class StateClient {
     /**
      * @internal
      */
-    public disconnect(): void {
+    public terminate(): void {
         this._stateSocket.disconnect();
+        clearTimeout(this._invokeJoinRetryTicker);
     }
 }
