@@ -84,7 +84,6 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
             this.emitter.emit("leadershipChange",leader);
         });
         if(this.stateClient != null) {
-            this.stateClient.join().catch(EMPTY_FUNCTION);
             this.brokerClusterClient = new BrokerClusterClient(this.stateClient,this.internalBroker,{
                 joinTokenSecret: this.joinToken.secret,
                 maxClientPoolSize: this.brokerClusterClientMaxPoolSize
