@@ -9,7 +9,6 @@ import {deepEqual, parseJoinToken} from "./Utils";
 import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
 import {Server, Socket} from "ziron-server";
-import {EMPTY_FUNCTION} from "./Constants";
 import BrokerClientPool from "./externalBroker/BrokerClientPool";
 
 type ClusterShared = {
