@@ -12,7 +12,7 @@ import {
     CancelableOption,
     ComplexTypesOption, CancelablePromise, ResponseTimeoutOption, ReturnDataTypeOption, DataType
 } from "ziron-client";
-import {hashToIndex} from "../Utils";
+import {hashToIndex, Writable} from "../Utils";
 import {EMPTY_FUNCTION} from "../Constants";
 import {NamedError} from "ziron-errors";
 
@@ -24,6 +24,8 @@ export interface BrokerClientPoolOptions {
 }
 
 export default class BrokerClientPool {
+
+    readonly brokerId?: string;
 
     /**
      * @internal
@@ -53,9 +55,13 @@ export default class BrokerClientPool {
             tempSocket = new Socket({...this.clientOptions});
             tempSocket.on("error",this._handleClientError);
             tempSocket.onPublish(this._handleClientPublish);
-            tempSocket.connect();
+            tempSocket.connect().then(id => id && this._setBrokerId(id))
             this.clients[i] = tempSocket;
         }
+    }
+
+    private _setBrokerId(id: string) {
+        (this as Writable<BrokerClientPool>).brokerId = id;
     }
 
     private _selectClient(key: string): Socket {
