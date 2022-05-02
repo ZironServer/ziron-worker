@@ -27,6 +27,10 @@ export default class BrokerClientPool {
 
     readonly brokerId?: string;
 
+    get brokerUri(): string {
+        return this._options.uri;
+    }
+
     /**
      * @internal
      */
