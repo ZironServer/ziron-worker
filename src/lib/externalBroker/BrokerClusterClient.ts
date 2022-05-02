@@ -52,11 +52,10 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
 
     /**
      * @description
-     * Returns an object containing the connected broker
-     * uris with the corresponding client pool.
+     * Returns all broker client pools.
      */
-    get brokerClients(): Record<string,BrokerClientPool> {
-        return {...this._brokerClientMap};
+    get brokerClients(): BrokerClientPool[] {
+        return Object.values(this._brokerClientMap);
     }
 
     private _setBrokerUris(uris: string[]): void {

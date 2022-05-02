@@ -46,8 +46,8 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
      * Provides limited access to the client pool for each broker.
      * Use it only when you know what you are doing.
      */
-    get brokerClients(): Record<string,BrokerClientPool> {
-        return this.brokerClusterClient?.brokerClients ?? {};
+    get brokerClients(): BrokerClientPool[] {
+        return this.brokerClusterClient?.brokerClients ?? [];
     }
 
     constructor(options: WorkerServerOptions = {}) {
