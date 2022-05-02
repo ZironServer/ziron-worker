@@ -165,6 +165,16 @@ export default class BrokerClientPool {
     }
 
     /**
+     * @description
+     * Returns if any client of the pool is connected to the broker.
+     */
+    isConnected(): boolean {
+        for(let i = 0, len = this.clients.length; i < len; i++)
+            if(this.clients[i].isConnected()) return true;
+        return false;
+    }
+
+    /**
      * @internal
      */
     cleanUp() {
