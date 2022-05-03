@@ -59,17 +59,18 @@ export default class BrokerClientPool {
             tempSocket = new Socket({...this.clientOptions});
             tempSocket.on("error",this._handleClientError);
             tempSocket.onPublish(this._handleClientPublish);
-            tempSocket.connect().then(id => id && this._setBrokerId(id))
+            tempSocket.on("connect",this._handleClientConnect);
+            tempSocket.connect().catch(() => {})
             this.clients[i] = tempSocket;
         }
     }
 
-    private _setBrokerId(id: string) {
-        (this as Writable<BrokerClientPool>).brokerId = id;
-    }
-
     private _selectClient(key: string): Socket {
         return this.clients[hashToIndex(key,this.clients.length)];
+    }
+
+    private _handleClientConnect = (brokerId: string) => {
+        if(brokerId) (this as Writable<BrokerClientPool>).brokerId = brokerId;
     }
 
     private _handleClientError = (error: Error) => {
