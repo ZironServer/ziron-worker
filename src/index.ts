@@ -27,6 +27,7 @@ import {
     Compressor, StaticFilesRouter
 } from "ziron-server";
 import BrokerClientPool from "./lib/externalBroker/BrokerClientPool";
+import {LogLevel} from "./lib/Logger";
 
 EventEmitter.onceTimeoutErrorCreator = () => new TimeoutError('Once timeout reached.','OnceListener');
 const prepareMultiTransmit = Transport.prepareMultiTransmit;
@@ -61,5 +62,6 @@ export {
     HttpRequest,
     HttpResponse,
     StaticFilesRouter,
-    BrokerClientPool
+    BrokerClientPool,
+    LogLevel
 }

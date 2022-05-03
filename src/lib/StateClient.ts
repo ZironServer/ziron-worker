@@ -17,6 +17,7 @@ import { address } from "ip";
 import {arrayContentEquals, Writable} from "./Utils";
 import {CLUSTER_VERSION} from "./ClusterVersion";
 import Timeout = NodeJS.Timeout;
+import Logger from "./Logger";
 
 type LocalEventEmitter = EventEmitter<{
     'leadershipChange': [boolean],
@@ -55,6 +56,8 @@ export default class StateClient {
     get connected(): boolean {
         return this._stateSocket?.isConnected();
     }
+
+    private initJoined = false;
 
     private initJoinResolve: () => void;
     private initJoinReject: (err: Error) => void;
@@ -102,7 +105,7 @@ export default class StateClient {
 
     private readonly _joinData: {shared: object, payload: object};
 
-    constructor(options: {
+    constructor(private readonly options: {
         joinTokenUri: string,
         joinTokenSecret: string,
         sharedData: Record<any, any>,
@@ -110,7 +113,7 @@ export default class StateClient {
         id: string,
         path: string,
         port: number
-    }) {
+    }, private readonly _logger: Logger) {
         this._joinData = {
             shared: options.sharedData,
             payload: options.joinPayload
@@ -139,6 +142,7 @@ export default class StateClient {
             },
         });
         stateSocket.on("error", (err) => {
+            this._logger.logError("Error in state socket: " + err.stack);
             this._emit("error",new Error("Error in state socket: " + err.stack));
         });
         stateSocket.procedures.addLeadership = (_,end) => {
@@ -155,10 +159,16 @@ export default class StateClient {
         const tryJoin = async () => {
             try {
                 await this._invokeJoin();
+                this._logger.logInfo(`Worker has ${this.initJoined ? "re" : ""}joined the cluster.`);
+                this.initJoined = true;
                 this.initJoinResolve();
             }
             catch (err) {
                 this.initJoinReject(err);
+                if(err.name === "IdAlreadyUsedInClusterError")
+                    this._logger.logWarning(`Attempt to join the cluster failed, the server-id: "${this.options.id}" already exists in the cluster.`);
+                else if(err.stack) this._logger.logError(`Attempt to join the cluster failed: ${err.stack}.`);
+
                 if(!stateSocket.isConnected()) return;
                 this._invokeJoinRetryTicker = setTimeout(tryJoin, 2000);
                 this._emit("error",err);
@@ -182,7 +192,10 @@ export default class StateClient {
         if(this._initJoinCalled) throw new Error("Join should only be invoked once. " +
                 "The server will automatically retry to rejoin the cluster in case of disconnection.");
         this._initJoinCalled = true;
-        this._stateSocket.connect().catch(this.initJoinReject)
+        this._stateSocket.connect().catch((err) => {
+            this.initJoinReject(err);
+            this._logger.logError(`Attempt to join the cluster failed: ${err.stack}.`);
+        })
         return this.initJoin;
     }
 

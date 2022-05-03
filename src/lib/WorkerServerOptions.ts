@@ -5,6 +5,7 @@ Copyright(c) Ing. Luca Gian Scaringella
  */
 
 import {ServerOptions} from "ziron-server";
+import {LogLevel} from "./Logger";
 
 export type WorkerServerOptions = {
     /**
@@ -43,4 +44,10 @@ export type WorkerServerOptions = {
      * @default true
      */
     clusterShareAuth?: boolean;
+    /**
+     * @description
+     * The log level specifies what information should be logged.
+     * @default LogLevel.Everything
+     */
+    logLevel?: LogLevel;
 } & ServerOptions

@@ -10,6 +10,7 @@ import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
 import {Server, Socket} from "ziron-server";
 import BrokerClientPool from "./externalBroker/BrokerClientPool";
+import Logger, {LogLevel} from "./Logger";
 
 type ClusterShared = {
     payload?: Record<any,any>,
@@ -32,6 +33,8 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
     public readonly stateClient?: StateClient;
     private readonly brokerClusterClient?: BrokerClusterClient;
 
+    private readonly _logger: Logger;
+
     get leader(): boolean {
         return this.stateClient?.leader ?? false;
     }
@@ -51,6 +54,8 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
 
     constructor(options: WorkerServerOptions = {}) {
         super(options);
+
+        this._logger = new Logger(options.logLevel ?? LogLevel.Everything);
 
         this._rawJoinToken = options.join || null;
         this.brokerClusterClientMaxPoolSize = options.brokerClusterClientMaxPoolSize || 12;
@@ -100,6 +105,12 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
         return this.stateClient?.join();
     }
 
+    public async listen() {
+        this._logger.logBusy("Launching worker server...");
+        await super.listen();
+        this._logger.logActive(`Worker server launched successfully on port: ${this.port}.`);
+    }
+
     public async joinAndListen() {
         await this.join();
         await this.listen();
@@ -123,7 +134,7 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
                     privateKey: authOptions.privateKey
                 } : undefined
             } as ClusterShared
-        });
+        },this._logger);
     }
 
     /**
