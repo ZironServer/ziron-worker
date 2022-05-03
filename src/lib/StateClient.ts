@@ -49,6 +49,8 @@ export default class StateClient {
     public readonly off: LocalEventEmitter['off'] = this._localEmitter.off.bind(this._localEmitter);
     private readonly _emit: LocalEventEmitter['emit'] = this._localEmitter.emit.bind(this._localEmitter);
 
+    readonly stateId?: string;
+
     private readonly _stateSocket: Socket;
     private _invokeJoinRetryTicker: Timeout;
     private _initJoinCalled: boolean = false;
@@ -65,6 +67,10 @@ export default class StateClient {
         this.initJoinResolve = res;
         this.initJoinReject = rej;
     })
+
+    private _setStateId(id: string) {
+        (this as Writable<StateClient>).stateId = id;
+    }
 
     /**
      * @description
@@ -195,7 +201,7 @@ export default class StateClient {
         this._stateSocket.connect().catch((err) => {
             this.initJoinReject(err);
             this._logger.logError(`Attempt to join the cluster failed: ${err.stack}.`);
-        })
+        }).then(this._setStateId);
         return this.initJoin;
     }
 
