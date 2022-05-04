@@ -15,7 +15,7 @@ import {InternalBroker} from "ziron-server";
 import RendezvousMapper from "ziron-rendezvous";
 
 type LocalEventEmitter = EventEmitter<{
-    'brokersClientPoolsUpdate': [],
+    'brokerClientPoolsUpdate': [],
     'error': [Error]
 }>;
 
@@ -101,7 +101,6 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
             channelLookup = mappedSubscriptions[uri] || {};
             if(tempClientPool) {
                 //reuse client pool
-
                 newBrokerClientMap[uri] = tempClientPool;
 
                 //update subscriptions of existing client pool
@@ -143,7 +142,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
         }
 
         this._brokerClientMap = newBrokerClientMap;
-        this._emit("brokersClientPoolsUpdate");
+        this._emit("brokerClientPoolsUpdate");
     }
 
     private _getMappedSubscriptions(): Record<string,Record<string,boolean>> {
@@ -169,7 +168,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
     }
 
     private async _tryWaitForClientPoolsUpdate() {
-        try {await this.once('brokersClientPoolsUpdate',5000);}
+        try {await this.once('brokerClientPoolsUpdate',5000);}
         catch (_) {
             //ignore timeout errors}
         }

@@ -21,7 +21,9 @@ type ClusterShared = {
     }
 }
 
-export default class WorkerServer<ES extends Socket = Socket> extends Server<{'sharedChange': [any],'leadershipChange': [boolean]},ES> {
+export default class WorkerServer<ES extends Socket = Socket>
+    extends Server<{'sharedChange': [any],'leadershipChange': [boolean],'brokerClientsUpdate': []},ES>
+{
 
     private readonly _rawJoinToken: string | null;
     private readonly brokerClusterClientMaxPoolSize: number;
@@ -92,6 +94,8 @@ export default class WorkerServer<ES extends Socket = Socket> extends Server<{'s
                 joinTokenSecret: this.joinToken.secret,
                 maxClientPoolSize: this.brokerClusterClientMaxPoolSize
             });
+            this.brokerClusterClient.on("brokerClientPoolsUpdate",() =>
+                this.emitter.emit("brokerClientsUpdate"));
             this.internalBroker.externalBrokerClient = this.brokerClusterClient;
         }
     }
