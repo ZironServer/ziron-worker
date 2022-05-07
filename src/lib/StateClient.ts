@@ -37,7 +37,7 @@ type JoinResponse = {
         id: string,
         shared: any,
     },
-    brokers: BrokerUpdate,
+    brokers: BrokerUpdate | null,
     leader: boolean
 }
 
@@ -187,7 +187,7 @@ export default class StateClient {
 
     private async _invokeJoin() {
         const joinResponse: JoinResponse = await this._stateSocket.invoke("#join",this._joinData);
-        this._handleBrokerUpdate(joinResponse.brokers);
+        if(joinResponse.brokers != null) this._handleBrokerUpdate(joinResponse.brokers);
         this._updateClusterSessionId(joinResponse.session.id);
         this._updateClusterSessionShared(joinResponse.session.shared);
     }
