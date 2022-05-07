@@ -183,8 +183,8 @@ export default class BrokerClientPool {
         let client: Socket;
         for(let i = 0; i < length; i++) {
             client = this.clients[i];
-            client.disconnect();
             client.unsubscribe();
+            client.disconnect();
             client.off();
             client.removeAllChannelListener();
         }
