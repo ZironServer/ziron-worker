@@ -53,6 +53,8 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
     /**
      * @description
      * Returns all broker client pools.
+     * Important: do not use any destroyed client pool
+     * (can be checked with the destroyed property); otherwise, you risk a memory leak.
      */
     get brokerClients(): BrokerClientPool[] {
         return Object.values(this._brokerClientMap);
@@ -138,7 +140,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
         length = createdClientUris.length;
         for(i = 0; i < length; i++) {
             uri = createdClientUris[i];
-            if(!newBrokerClientMap[uri]) this._brokerClientMap[uri].cleanUp();
+            if(!newBrokerClientMap[uri]) this._brokerClientMap[uri].destroy();
         }
 
         this._brokerClientMap = newBrokerClientMap;
@@ -222,7 +224,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
      * [Use this method only when you know what you do.]
      */
     terminate() {
-        Object.values(this._brokerClientMap).forEach((client) => client.cleanUp());
+        Object.values(this._brokerClientMap).forEach((client) => client.destroy());
         this._brokerClientMap = {};
         this._brokerUris = [];
     }

@@ -26,6 +26,7 @@ export interface BrokerClientPoolOptions {
 export default class BrokerClientPool {
 
     readonly brokerId?: string;
+    readonly destroyed: boolean = false;
 
     get brokerUri(): string {
         return this._options.uri;
@@ -178,7 +179,8 @@ export default class BrokerClientPool {
     /**
      * @internal
      */
-    cleanUp() {
+    destroy() {
+        (this as Writable<BrokerClientPool>).destroyed = true;
         const length = this.clients.length;
         let client: Socket;
         for(let i = 0; i < length; i++) {

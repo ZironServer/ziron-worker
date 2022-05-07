@@ -49,6 +49,8 @@ export default class WorkerServer<ES extends Socket = Socket>
      * @description
      * Provides limited access to the client pool for each broker.
      * Use it only when you know what you are doing.
+     * Important: do not use any destroyed client pool
+     * (can be checked with the destroyed property); otherwise, you risk a memory leak.
      */
     get brokerClients(): BrokerClientPool[] {
         return this.brokerClusterClient?.brokerClients ?? [];
