@@ -38,4 +38,9 @@ export default class Logger {
     if (this.level >= LogLevel.ErrorsAndWarnings)
       console.warn("\x1b[31m%s\x1b[0m", "   [WARNING]", msg.join("\n"));
   }
+
+  public logFailed(...msg: string[]) {
+    if (this.level >= LogLevel.ErrorsAndWarnings)
+      console.log("\x1b[31m%s\x1b[0m", "   [FAILED]", msg.join("\n"));
+  }
 }

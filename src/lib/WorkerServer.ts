@@ -8,7 +8,7 @@ import {WorkerServerOptions} from "./WorkerServerOptions";
 import {deepEqual, parseJoinToken} from "./Utils";
 import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
-import {Server, Socket} from "ziron-server";
+import {FailedToListenError, Server, Socket} from "ziron-server";
 import BrokerClientPool from "./externalBroker/BrokerClientPool";
 import Logger, {LogLevel} from "./Logger";
 
@@ -112,9 +112,17 @@ export default class WorkerServer<ES extends Socket = Socket>
     }
 
     public async listen() {
-        this._logger.logBusy("Launching worker server...");
-        await super.listen();
-        this._logger.logActive(`Worker server launched successfully on port: ${this.port}.`);
+        if(super.isListening()) return;
+        try {
+            this._logger.logBusy("Launching worker server...");
+            await super.listen();
+            this._logger.logActive(`Worker server launched successfully on port: ${this.port}.`);
+        }
+        catch (err) {
+            if(err instanceof FailedToListenError)
+                this._logger.logFailed(`Failed to listen on port: ${this.port}. Maybe the port is already in use.`);
+            throw err;
+        }
     }
 
     public async joinAndListen() {
