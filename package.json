@@ -18,10 +18,11 @@
     "email": "lucacode1@gmail.com"
   },
   "dependencies": {
-    "ziron-server": "7.7.0",
-    "ziron-client": "7.7.0",
+    "ziron-server": "7.8.0",
+    "ziron-client": "7.8.0",
     "ziron-rendezvous": "1.0.0",
-    "@types/node": "^13.7.6"
+    "@types/node": "^13.7.6",
+    "ip": "^1.1.8"
   },
   "devDependencies": {
     "typescript": "^3.7.5",
@@ -33,7 +34,6 @@
     "ts-node": "^8.0.3",
     "mocha": "7.0.1",
     "@types/mocha": "^7.0.2",
-    "@types/uniqid": "^5.3.0",
     "@types/ip": "^1.1.0"
   },
   "scripts": {
