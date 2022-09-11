@@ -23,6 +23,7 @@ import {
     UpgradeRequest,
     HttpRequest,
     HttpResponse,
+    HttpResponseState,
     TLSOptions, CompressionOptions,
     Compressor, StaticFilesRouter
 } from "ziron-server";
@@ -61,6 +62,7 @@ export {
     UpgradeRequest,
     HttpRequest,
     HttpResponse,
+    HttpResponseState,
     StaticFilesRouter,
     BrokerClientPool,
     LogLevel
