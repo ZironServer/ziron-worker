@@ -7,7 +7,6 @@ Copyright(c) Ing. Luca Gian Scaringella
 import WorkerServer              from "./lib/WorkerServer";
 import {WorkerServerOptions}     from "./lib/WorkerServerOptions";
 import EventEmitter              from "emitix";
-import {TimeoutError, Transport} from "ziron-engine";
 import StateClient               from "./lib/StateClient";
 import {
     AuthEngine, Block, ChannelExchange,
@@ -24,8 +23,25 @@ import {
     HttpRequest,
     HttpResponse,
     HttpResponseState,
-    TLSOptions, CompressionOptions,
-    Compressor, StaticFilesRouter
+    TLSOptions,
+    CompressionOptions,
+    Compressor,
+    StaticFilesRouter,
+    TimeoutError,
+    Transport,
+    ReadStream,
+    WriteStream,
+    StreamCloseCode,
+    StreamState,
+    StreamCloseError,
+    JSONString,
+    ComplexTypesOption,
+    DataType,
+    containsStreams,
+    analyseTypeofData,
+    isMixedJSONDataType,
+    containsBinaries,
+    ChunkMiddleware
 } from "ziron-server";
 import BrokerClientPool from "./lib/externalBroker/BrokerClientPool";
 import {LogLevel} from "./lib/Logger";
@@ -33,7 +49,6 @@ import {LogLevel} from "./lib/Logger";
 EventEmitter.onceTimeoutErrorCreator = () => new TimeoutError('Once timeout reached.','OnceListener');
 const prepareMultiTransmit = Transport.prepareMultiTransmit;
 
-export * from 'ziron-engine';
 export {
     WorkerServer as Server,
     WorkerServerOptions as ServerOptions,
@@ -65,5 +80,18 @@ export {
     HttpResponseState,
     StaticFilesRouter,
     BrokerClientPool,
-    LogLevel
+    LogLevel,
+    ReadStream,
+    WriteStream,
+    StreamCloseCode,
+    StreamState,
+    StreamCloseError,
+    JSONString,
+    ComplexTypesOption,
+    DataType,
+    containsStreams,
+    analyseTypeofData,
+    isMixedJSONDataType,
+    containsBinaries,
+    ChunkMiddleware
 }
