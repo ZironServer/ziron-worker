@@ -63,3 +63,25 @@ export function parseJoinToken(token: string): {secret: string, uri: string} {
         uri: token.substring(joinTokenIndexOfAt + 1)
     }
 }
+
+/**
+ * Ensures that any catched value is an instance of Error.
+ * @param err 
+ * @returns 
+ */
+export function ensureError(err: any): Error {
+    if (err instanceof Error) return err;
+    if (typeof err === 'string') return new Error(err);
+    try {
+        return new Error(String(err));
+    } catch {
+        return new Error('Unknown error');
+    }
+}
+
+export function stringifyError(err: any): string | undefined {
+    if (typeof err === 'string') return err;
+    if (err instanceof Error) return err.message; 
+    try {return String(err)} 
+    catch {return undefined;}
+}

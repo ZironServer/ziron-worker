@@ -18,15 +18,15 @@
     "email": "lucacode1@gmail.com"
   },
   "dependencies": {
-    "ziron-server": "9.9.1",
-    "ziron-client": "9.9.1",
+    "ziron-server": "9.9.3",
+    "ziron-client": "9.9.3",
     "ziron-rendezvous": "1.0.0",
-    "@types/node": "^13.7.6",
+    "@types/node": "^18.16.3",
     "ip": "^1.1.8"
   },
   "devDependencies": {
-    "typescript": "^3.7.5",
-    "gulp": "4.0.2",
+    "typescript": "^5.8.3",
+    "gulp": "^5.0.1",
     "gulp-optimize-js": "1.1.0",
     "gulp-terser": "1.2.0",
     "gulp-typescript": "^5.0.1",

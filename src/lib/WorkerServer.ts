@@ -5,7 +5,7 @@ Copyright(c) Ing. Luca Gian Scaringella
  */
 
 import {WorkerServerOptions} from "./WorkerServerOptions";
-import {deepEqual, parseJoinToken} from "./Utils";
+import {deepEqual, ensureError, parseJoinToken} from "./Utils";
 import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
 import {FailedToListenError, Server, Socket} from "ziron-server";
@@ -85,7 +85,7 @@ export default class WorkerServer<ES extends Socket = Socket>
                         privateKey: auth.privateKey
                     })
                 }
-                catch (err) {this.emitter.emit("error",err);}
+                catch (err) {this.emitter.emit("error",ensureError(err));}
             }
         });
         this.stateClient?.on("leadershipChange",leader => {

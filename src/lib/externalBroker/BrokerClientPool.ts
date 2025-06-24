@@ -12,7 +12,7 @@ import {
     CancelableOption,
     ComplexTypesOption, CancelablePromise, ResponseTimeoutOption, ReturnDataTypeOption, DataType
 } from "ziron-client";
-import {hashToIndex, Writable} from "../Utils";
+import {hashToIndex, stringifyError, Writable} from "../Utils";
 import {EMPTY_FUNCTION} from "../Constants";
 import {NamedError} from "ziron-errors";
 
@@ -107,7 +107,7 @@ export default class BrokerClientPool {
      */
     async subscribe(channel: string): Promise<void> {
         try {await this._selectClient(channel).subscribe(channel);}
-        catch (err) {this.onError(new NamedError("PoolClientSubscribeFail", err));}
+        catch (err) {this.onError(new NamedError("PoolClientSubscribeFail", stringifyError(err)));}
     }
 
     /**
@@ -115,7 +115,7 @@ export default class BrokerClientPool {
      */
     async unsubscribe(channel: string): Promise<void> {
         try {return this._selectClient(channel).unsubscribe(channel);}
-        catch (err) {this.onError(new NamedError("PoolClientUnsubscribeFail", err));}
+        catch (err) {this.onError(new NamedError("PoolClientUnsubscribeFail", stringifyError(err)));}
     }
 
     /**
@@ -123,7 +123,7 @@ export default class BrokerClientPool {
      */
     async publish(channel: string, data: any, processComplexTypes: boolean) {
         try {await this._selectClient(channel).publish(channel,data,{processComplexTypes});}
-        catch (err) {this.onError(new NamedError("PoolClientPublishFail", err));}
+        catch (err) {this.onError(new NamedError("PoolClientPublishFail", stringifyError(err)));}
     }
 
     /**

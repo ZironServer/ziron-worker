@@ -14,7 +14,7 @@ import {
 } from "ziron-client";
 import EventEmitter from "emitix";
 import { address } from "ip";
-import {arrayContentEquals, Writable} from "./Utils";
+import {arrayContentEquals, ensureError, Writable} from "./Utils";
 import {CLUSTER_VERSION} from "./ClusterVersion";
 import Timeout = NodeJS.Timeout;
 import Logger from "./Logger";
@@ -166,7 +166,8 @@ export default class StateClient {
                 this.initJoined = true;
                 this.initJoinResolve();
             }
-            catch (err) {
+            catch (rawErr) {
+                const err = ensureError(rawErr);
                 this.initJoinReject(err);
                 if(err.name === "IdAlreadyUsedInClusterError")
                     this._logger.logWarning(`Attempt to join the cluster failed, the server-id: "${this.options.id}" already exists in the cluster.`);
