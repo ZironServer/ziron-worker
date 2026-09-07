@@ -70,6 +70,7 @@ export default class WorkerServer<ES extends Socket = Socket>
         this.joinToken = parseJoinToken(this._rawJoinToken || '');
 
         this.stateClient = this._setUpStateClient();
+        this.stateClient?.on("error", (err) => this.emitter.emit("error", err));
         this.stateClient?.on("sessionSharedUpdate", (shared: ClusterShared,
                                                      oldShared: ClusterShared) =>
         {
@@ -96,6 +97,7 @@ export default class WorkerServer<ES extends Socket = Socket>
                 joinTokenSecret: this.joinToken.secret,
                 maxClientPoolSize: this.brokerClusterClientMaxPoolSize
             });
+            this.brokerClusterClient.on("error", (err) => this.emitter.emit("error", err));
             this.brokerClusterClient.on("brokerClientPoolsUpdate",() =>
                 this.emitter.emit("brokerClientsUpdate"));
             this.internalBroker.externalBrokerClient = this.brokerClusterClient;
