@@ -114,7 +114,7 @@ export default class BrokerClientPool {
      * @internal
      */
     async unsubscribe(channel: string): Promise<void> {
-        try {return this._selectClient(channel).unsubscribe(channel);}
+        try {await this._selectClient(channel).unsubscribe(channel);}
         catch (err) {this.onError(new NamedError("PoolClientUnsubscribeFail", stringifyError(err)));}
     }
 

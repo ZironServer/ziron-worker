@@ -155,6 +155,7 @@ export default class StateClient {
             this._handleBrokerUpdate(brokersUpdate);
         }
         stateSocket.on("disconnect", () => {
+            clearTimeout(this._invokeJoinRetryTicker);
             (this as Writable<StateClient>).stateId = undefined;
             this._updateLeadership(false);
         })
