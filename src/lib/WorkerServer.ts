@@ -5,7 +5,7 @@ Copyright(c) Ing. Luca Gian Scaringella
  */
 
 import {WorkerServerOptions} from "./WorkerServerOptions";
-import {deepEqual, ensureError, parseJoinToken} from "./Utils";
+import {deepEqual, ensureError, isPlainWsToPublicHost, parseJoinToken} from "./Utils";
 import StateClient from "./StateClient";
 import BrokerClusterClient from "./externalBroker/BrokerClusterClient";
 import {FailedToListenError, Server, Socket} from "ziron-server";
@@ -68,6 +68,10 @@ export default class WorkerServer<ES extends Socket = Socket>
         this.clusterShareAuth = options.clusterShareAuth === undefined ? true : options.clusterShareAuth;
 
         this.joinToken = parseJoinToken(this._rawJoinToken || '');
+        if(this._rawJoinToken != null && this.clusterShareAuth && isPlainWsToPublicHost(this.joinToken.uri))
+            this._logger.logWarning("The auth options are shared in the cluster (clusterShareAuth) over an " +
+                "unencrypted ws:// connection to a non-loopback address, so the auth secret is transferred in plain text. " +
+                "Use a wss:// join token or a private network.");
 
         this.stateClient = this._setUpStateClient();
         this.stateClient?.on("error", (err) => this.emitter.emit("error", err));

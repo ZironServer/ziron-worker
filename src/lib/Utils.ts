@@ -85,3 +85,18 @@ export function stringifyError(err: any): string | undefined {
     try {return String(err)} 
     catch {return undefined;}
 }
+
+/**
+ * Returns if the uri uses an unencrypted ws connection
+ * to a host that is not a loopback address.
+ * @param uri
+ */
+export function isPlainWsToPublicHost(uri: string): boolean {
+    try {
+        const url = new URL(uri.includes("://") ? uri : "ws://" + uri);
+        if(url.protocol !== "ws:") return false;
+        const host = url.hostname.replace(/^\[|\]$/g, "");
+        return !(host === "localhost" || host === "::1" || host.startsWith("127."));
+    }
+    catch (_) {return false;}
+}
