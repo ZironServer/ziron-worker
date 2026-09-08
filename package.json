@@ -18,23 +18,20 @@
     "email": "lucacode1@gmail.com"
   },
   "dependencies": {
-    "ziron-server": "9.10.0",
+    "@types/node": "^18.16.3",
     "ziron-client": "9.10.0",
     "ziron-rendezvous": "1.0.0",
-    "@types/node": "^18.16.3",
-    "ip": "^1.1.8"
+    "ziron-server": "9.10.0"
   },
   "devDependencies": {
-    "typescript": "^5.8.3",
+    "@types/mocha": "^7.0.2",
+    "del": "^5.1.0",
     "gulp": "^5.0.1",
-    "gulp-optimize-js": "1.1.0",
     "gulp-terser": "1.2.0",
     "gulp-typescript": "^5.0.1",
-    "del": "^5.1.0",
-    "ts-node": "^8.0.3",
     "mocha": "7.0.1",
-    "@types/mocha": "^7.0.2",
-    "@types/ip": "^1.1.0"
+    "ts-node": "^8.0.3",
+    "typescript": "^5.8.3"
   },
   "overrides": {
     "gulp-typescript": {
@@ -52,5 +49,8 @@
     "ziron",
     "fast",
     "lightway"
-  ]
+  ],
+  "engines": {
+    "node": ">=22"
+  }
 }

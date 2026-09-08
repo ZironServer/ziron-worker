@@ -13,7 +13,7 @@ import {
     Socket
 } from "ziron-client";
 import EventEmitter from "emitix";
-import { address } from "ip";
+import { localIpAddress } from "./Utils";
 import {arrayContentEquals, ensureError, Writable} from "./Utils";
 import {CLUSTER_VERSION} from "./ClusterVersion";
 import Timeout = NodeJS.Timeout;
@@ -137,7 +137,7 @@ export default class StateClient {
                 node: {
                     id: options.id,
                     type: 0,
-                    ip: address(),
+                    ip: localIpAddress(),
                     port: options.port,
                     path: options.path,
                 },
