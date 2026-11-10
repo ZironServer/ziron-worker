@@ -10,8 +10,9 @@ import {
     BatchOption,
     SendTimeoutOption,
     CancelableOption,
-    ComplexTypesOption, CancelablePromise, ResponseTimeoutOption, ReturnDataTypeOption, DataType
+    ComplexTypesOption, CancelablePromise, ResponseTimeoutOption, ReturnDataTypeOption, DataType, JSONString
 } from "ziron-client";
+import {JSONString as ServerJSONString} from "ziron-server";
 import {UnsubscribeReason} from "ziron-client/dist/lib/core/Socket";
 import {hashToIndex, stringifyError, Writable} from "../Utils";
 import {EMPTY_FUNCTION} from "../Constants";
@@ -246,6 +247,8 @@ export default class BrokerClientPool {
         const client = this._selectPoolClient(channel);
         client.pending.add(channel);
         this._scheduleBarrier(client);
+        //prepared JSON of the server as one of the client (their ziron-engine can be another copy)
+        if(data instanceof ServerJSONString && !(data instanceof JSONString)) data = new JSONString(String(data));
         try {await client.socket.publish(channel,data,{processComplexTypes});}
         catch (err) {this.onError(new NamedError("PoolClientPublishFail", stringifyError(err)));}
     }
