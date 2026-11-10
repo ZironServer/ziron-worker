@@ -23,6 +23,11 @@ type LocalEventEmitter = EventEmitter<{
     'leadershipChange': [boolean],
     'brokersChange': [string[]],
     'sessionIdChange': [string],
+    /**
+     * Another worker left the cluster (with the id), or this worker joined again
+     * after a lost connection to the state server (without an id: leaves in between are unknown).
+     */
+    'workerLeave': [string | undefined],
     'sessionSharedUpdate': [any,any],
     'error': [Error]
 }>;
@@ -154,6 +159,9 @@ export default class StateClient {
         stateSocket.receivers.updateBrokers = (brokersUpdate: BrokerUpdate) => {
             this._handleBrokerUpdate(brokersUpdate);
         }
+        stateSocket.receivers.workerLeave = (id: string) => {
+            if(typeof id === 'string') this._emit("workerLeave",id);
+        }
         stateSocket.on("disconnect", () => {
             clearTimeout(this._invokeJoinRetryTicker);
             (this as Writable<StateClient>).stateId = undefined;
@@ -164,6 +172,7 @@ export default class StateClient {
             try {
                 await this._invokeJoin();
                 this._logger.logInfo(`Worker has ${this.initJoined ? "re" : ""}joined the cluster.`);
+                if(this.initJoined) this._emit("workerLeave",undefined);
                 this.initJoined = true;
                 this.initJoinResolve();
             }
