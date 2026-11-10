@@ -14,6 +14,11 @@ import EventEmitter from "emitix";
 import {InternalBroker} from "ziron-server";
 import RendezvousMapper from "ziron-rendezvous";
 
+/**
+ * A channel that moved to another broker stays subscribed at the old one for this time.
+ */
+const MOVED_CHANNEL_UNSUBSCRIBE_DELAY = 5000;
+
 type LocalEventEmitter = EventEmitter<{
     'brokerClientPoolsUpdate': [],
     'error': [Error]
@@ -61,13 +66,41 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
     }
 
     private _setBrokerUris(uris: string[]): void {
+        const subscriptions = this._internalBroker.getSubscriptions();
+        const before = subscriptions.map(channel => this._selectClientPoolFromChannel(channel));
+        const active = subscriptions.map((channel,i) => !!before[i]?.hasSubscribed(channel));
         this._brokerUris = uris.filter(distinctArrayFilter);
         this._mapper.setSites(this._brokerUris);
         this.updateToBrokerUris();
+        //a channel on another broker misses publishes until it is subscribed there
+        for(let i = 0; i < subscriptions.length; i++) {
+            if(active[i] && before[i] !== this._selectClientPoolFromChannel(subscriptions[i]))
+                this._internalBroker.processSubscriptionChange(subscriptions[i],false);
+        }
     }
 
     private _processClientPoolPublishEvent = (channel: string, data: any, complexDataType: boolean) => {
         this._internalBroker.processExternalPublish(channel,data,complexDataType);
+    }
+
+    /**
+     * Only the pool the channel is mapped to tells about its subscription.
+     */
+    private _processClientPoolSubscriptionChange(pool: BrokerClientPool, channel: string, active: boolean) {
+        if(this._selectClientPoolFromChannel(channel) === pool)
+            this._internalBroker.processSubscriptionChange(channel,active);
+    }
+
+    private _processClientPoolPublishLoss = (channel: string) => {
+        this._internalBroker.processPublishLoss(channel);
+    }
+
+    /**
+     * Whether the subscription of the channel is confirmed by its broker and not cut since.
+     */
+    isSubscriptionActive(channel: string): boolean {
+        const pool = this._selectClientPoolFromChannel(channel);
+        return pool != null && pool.hasSubscribed(channel);
     }
 
     private _handleClientPoolError = (error: Error) => {
@@ -106,12 +139,14 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
                 newBrokerClientMap[uri] = tempClientPool;
 
                 //update subscriptions of existing client pool
-                //cancel old subscriptions
+                //cancel old subscriptions (a while later: servers that still map a channel here can publish meanwhile)
                 tempSubscriptions = tempClientPool.getSubscriptions(true);
-                tempSubscriptions.forEach(channel => {
-                    if (!channelLookup[channel])
-                        tempClientPool.unsubscribe(channel);
-                });
+                const pool = tempClientPool, poolUri = uri, moved = tempSubscriptions.filter(channel => !channelLookup[channel]);
+                if(moved.length > 0) setTimeout(() => {
+                    if(pool.destroyed) return;
+                    const mapped = this._getMappedSubscriptions()[poolUri] || {};
+                    for(const channel of moved) if(!mapped[channel]) pool.unsubscribe(channel);
+                },MOVED_CHANNEL_UNSUBSCRIBE_DELAY);
                 //add new subscriptions
                 Object.keys(channelLookup).forEach((channel) => {
                     if(tempSubscriptions.indexOf(channel) === -1)
@@ -127,6 +162,10 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
             });
             tempClientPool.onPublish = this._processClientPoolPublishEvent;
             tempClientPool.onError = this._handleClientPoolError;
+            const pool = tempClientPool;
+            tempClientPool.onSubscriptionChange = (channel, active) =>
+                this._processClientPoolSubscriptionChange(pool,channel,active);
+            tempClientPool.onPublishLoss = this._processClientPoolPublishLoss;
             newBrokerClientMap[uri] = tempClientPool;
 
             //add new subscriptions
@@ -192,6 +231,7 @@ export default class BrokerClusterClient implements ExternalBrokerClient {
         this._tryWaitForClientPoolsUpdate().then(() => {
             clientPool = this._selectClientPoolFromChannel(channel);
             if(clientPool) return clientPool.publish(channel,data,processComplexTypes);
+            this._internalBroker.processPublishLoss(channel);
             this._emit("error",new NoMatchingBrokerClientError(channel));
         })
     }
