@@ -19,9 +19,9 @@
   },
   "dependencies": {
     "@types/node": "^18.16.3",
-    "ziron-client": "9.11.0",
+    "ziron-client": "9.12.0",
     "ziron-rendezvous": "1.0.0",
-    "ziron-server": "9.11.0"
+    "ziron-server": "9.12.0"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",
