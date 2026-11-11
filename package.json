@@ -1,6 +1,6 @@
 {
   "name": "ziron-worker",
-  "version": "9.13.0",
+  "version": "9.14.0",
   "description": "Ziron worker",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,9 +19,9 @@
   },
   "dependencies": {
     "@types/node": "^18.16.3",
-    "ziron-client": "9.13.0",
+    "ziron-client": "9.14.0",
     "ziron-rendezvous": "1.0.0",
-    "ziron-server": "9.13.0"
+    "ziron-server": "9.14.0"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",
